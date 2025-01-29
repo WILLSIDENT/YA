@@ -18,6 +18,7 @@ main {
   box-sizing: border-box;
   width: 100%;
   max-width: 1200px;
+  margin: 0 auto;
 }
 
 a {color:rgb(0, 204, 153);}
