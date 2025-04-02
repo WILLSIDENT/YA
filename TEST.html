@@ -1,149 +1,393 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TEST | WILLSIDENT</title>
   <style>
-    * { box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #f5f8fa;
+    html, body {
       margin: 0;
-      padding: 2rem;
-      max-width: 600px;
-      margin: auto;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+      overflow: hidden;
     }
-    form {
-      background: #fff;
-      border: 1px solid #ccc;
+
+    .layout {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+      position: relative;
+    }
+
+    .sidebar {
+      width: 33.33vw;
+      height: 100vh;
+      background: #000;
+      border-right: 1px solid #222;
+      color: #fff;
+      padding: 1rem 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      z-index: 1000;
+    }
+
+    .sidebar nav {
+      margin-left: auto;
+      padding-right: 1rem;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      width: 100%;
+    }
+
+    .sidebar li {
+      padding: 0.5rem;
+      border: none;
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 0.6rem 1rem;
+      text-align: right;
+      font-size: 1.2rem;
+      color: #fff;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .sidebar a:hover {
+      background: #111;
+      border-radius: 8px;
+    }
+
+    .main-scroll-area {
+      width: 640px;
+      min-width: 640px;
+      height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      background: #000;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .main-scroll-area::-webkit-scrollbar {
+      display: none;
+    }
+
+    .main-content {
+      width: 100%;
       padding: 1rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      box-sizing: border-box;
     }
+
+    form {
+      background: #000;
+      border-bottom: 1px solid #222;
+      padding: 1rem;
+    }
+
     input, textarea {
       width: 100%;
       padding: 0.6rem;
-      margin-bottom: 0.8rem;
-      border: 1px solid #ccc;
+      margin: 0;
+      border: none;
+      background: #000;
+      color: #fff;
       font-size: 1rem;
+      outline: none;
     }
+
+    textarea {
+      resize: none;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #444;
+      margin: 1rem 0;
+    }
+
+    .submit-wrapper {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 0.5rem;
+    }
+
     button {
-      background: #000000;
-      color: white;
+      background: #ffd000;
+      color: #000;
       border: none;
       padding: 0.6rem 1.2rem;
       font-weight: bold;
       cursor: pointer;
     }
-    ul {
+
+    ul#l {
       list-style: none;
       padding: 0;
+      margin: 0;
     }
+
     li {
-      background: white;
-      border: 1px solid #ccc;
-      margin-bottom: 1rem;
-      padding: 1rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
       position: relative;
+      padding: 1rem;
+      padding-bottom: 3rem;
+      background: #000;
+      border-bottom: 1px solid #222;
     }
+
     .name {
       font-weight: bold;
-      margin-bottom: 0.3rem;
     }
+
+    .date {
+      font-size: 0.8rem;
+      color: #444;
+    }
+
     .message {
-      margin-bottom: 0.5rem;
+      white-space: pre-wrap;
+      line-height: 1.6;
     }
-    .meta {
-      font-size: 0.8rem;
-      color: #555;
-    }
-    .delete-btn {
+
+    .like-btn {
       position: absolute;
-      top: 0.8rem;
-      right: 0.8rem;
-      font-size: 0.8rem;
-      color: red;
-      cursor: pointer;
+      bottom: 1rem;
+      right: 0.5rem;
+      font-size: 1rem;
+      color: #666;
       background: none;
       border: none;
+      cursor: pointer;
+    }
+
+    .like-btn.liked {
+      font-weight: bold;
+      color: #ffd000;
+    }
+
+    .delete-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      font-size: 0.8rem;
+      color: rgb(255, 0, 106);
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .right {
+      width: 33.33vw;
+      height: 100vh;
+      background: #000;
+      border-left: 1px solid #222;
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 999;
+    }
+
+    .sidebar.open + .overlay {
+      display: block;
+    }
+
+    @media (max-width: 985px) {
+      .sidebar {
+        position: fixed;
+        left: -100%;
+        width: 70vw;
+        transition: left 0.3s ease;
+      }
+
+      .sidebar.open {
+        left: 0;
+      }
+
+      .main-scroll-area {
+        width: 100vw !important;
+        flex-shrink: 1 !important;
+      }
+
+      .main-content {
+        max-width: 100vw !important;
+        padding: 1rem;
+        box-sizing: border-box;
+      }
+
+      .right {
+        display: none !important;
+        width: 0 !important;
+      }
+
+      .layout {
+        overflow-x: hidden !important;
+      }
     }
   </style>
 </head>
 <body>
+  <div class="layout">
+    <aside class="sidebar">
+      <nav>
+        <ul>
+          <li><a href="https://willsident.github.io/YA/">😉 ホーム</a></li>
+          <li><a href="https://willsident.github.io/YA/TEST.html">😘 掲示板</a></li>
+        </ul>
+      </nav>
+    </aside>
 
-<form id="f">
-  <input id="n" placeholder="名前">
-  <textarea id="m" placeholder="いまどうしてる？"></textarea>
-  <button>投稿</button>
-</form>
+    <div class="overlay"></div>
 
-<ul id="l"></ul>
+    <main class="main-scroll-area">
+      <div class="main-content">
+        <form id="f">
+          <input id="n" placeholder="名前">
+          <hr>
+          <textarea id="m" placeholder="なんか書いて"></textarea>
+          <div class="submit-wrapper">
+            <button>ATTACK</button>
+          </div>
+        </form>
+        <ul id="l"></ul>
+      </div>
+    </main>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-app.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore.js";
-import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-auth.js";
+    <aside class="right"></aside>
+  </div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-app.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, deleteDoc, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-auth.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDu7kx3msV9CvOzxD9ilKmWfzkT3YHFcMg",
-  authDomain: "willsident-pj.firebaseapp.com",
-  projectId: "willsident-pj",
-  storageBucket: "willsident-pj.firebasestorage.app",
-  messagingSenderId: "791017364363",
-  appId: "1:791017364363:web:b2f1408377544c4de6ed8e",
-  measurementId: "G-BEDL3WPVJ2"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyDu7kx3msV9CvOzxD9ilKmWfzkT3YHFcMg",
+      authDomain: "willsident-pj.firebaseapp.com",
+      projectId: "willsident-pj",
+      storageBucket: "willsident-pj.firebasestorage.app",
+      messagingSenderId: "791017364363",
+      appId: "1:791017364363:web:b2f1408377544c4de6ed8e"
+    };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-let uid = null;
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    let uid = null;
 
-signInAnonymously(auth);
-onAuthStateChanged(auth, user => {
-  if (!user) return;
-  uid = user.uid;
+    signInAnonymously(auth);
+    onAuthStateChanged(auth, user => {
+      if (!user) return;
+      uid = user.uid;
 
-  const f = document.getElementById('f');
-  const n = document.getElementById('n');
-  const m = document.getElementById('m');
-  const l = document.getElementById('l');
+      const f = document.getElementById('f');
+      const n = document.getElementById('n');
+      const m = document.getElementById('m');
+      const l = document.getElementById('l');
 
-  f.onsubmit = async e => {
-    e.preventDefault();
-    if (!n.value || !m.value) return;
-    await addDoc(collection(db, "comments"), {
-      name: n.value,
-      message: m.value,
-      timestamp: new Date(),
-      uid: uid
+      f.onsubmit = async e => {
+        e.preventDefault();
+        if (!n.value || !m.value) return;
+        await addDoc(collection(db, "comments"), {
+          name: n.value,
+          message: m.value,
+          timestamp: new Date(),
+          uid: uid
+        });
+        n.value = "";
+        m.value = "";
+      };
+
+      const q = query(collection(db, "comments"), orderBy("timestamp", "desc"));
+      onSnapshot(q, snap => {
+        l.innerHTML = "";
+        snap.forEach(d => {
+          const c = d.data(), id = d.id;
+          const li = document.createElement("li");
+          const date = c.timestamp.toDate().toLocaleString("ja-JP");
+          const likesCol = collection(db, "comments", id, "likes");
+
+          li.innerHTML = `
+            <div class="name">${c.name}　<span class="date">${date}</span></div>
+            <div class="message">${c.message}</div>
+            ${uid === c.uid ? `<button class="delete-btn" data-id="${id}">削除</button>` : ""}
+            <span class="likes" data-id="${id}">♡ ...</span>
+          `;
+          l.appendChild(li);
+
+          onSnapshot(likesCol, async (likeSnap) => {
+            const likeCount = likeSnap.size;
+            const likeDoc = await getDoc(doc(likesCol, uid));
+            const liked = likeDoc.exists();
+            const likesSpan = li.querySelector(".likes");
+            likesSpan.innerHTML = `
+              <button class="like-btn ${liked ? 'liked' : ''}" data-id="${id}" data-liked="${liked}">
+                ▲ ${likeCount}
+              </button>
+            `;
+
+            likesSpan.querySelector(".like-btn").onclick = async () => {
+              const likeRef = doc(db, "comments", id, "likes", uid);
+              if (liked) {
+                await deleteDoc(likeRef);
+              } else {
+                await setDoc(likeRef, { liked: true });
+              }
+            };
+          });
+        });
+
+        l.querySelectorAll(".delete-btn").forEach(b => {
+          b.onclick = () => deleteDoc(doc(db, "comments", b.dataset.id));
+        });
+      });
     });
-    n.value = "";
-    m.value = "";
-  };
+    let touchStartX = 0;
+    let touchEndX = 0;
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.querySelector('.overlay');
 
-  const q = query(collection(db, "comments"), orderBy("timestamp", "desc"));
-  onSnapshot(q, snap => {
-    l.innerHTML = "";
-    snap.forEach(d => {
-      const c = d.data(), id = d.id;
-      const li = document.createElement("li");
-      const date = c.timestamp.toDate().toLocaleString("ja-JP");
-      li.innerHTML = `
-        <div class="name">${c.name}</div>
-        <div class="message">${c.message}</div>
-        <div class="meta">${date}</div>
-        ${uid === c.uid ? `<button class="delete-btn" data-id="${id}">削除</button>` : ""}
-      `;
-      l.appendChild(li);
+    document.body.addEventListener('touchstart', e => {
+      touchStartX = e.changedTouches[0].screenX;
     });
-    l.querySelectorAll(".delete-btn").forEach(b => {
-      b.onclick = () => deleteDoc(doc(db, "comments", b.dataset.id));
-    });
-  });
-});
-</script>
 
+    document.body.addEventListener('touchend', e => {
+      touchEndX = e.changedTouches[0].screenX;
+      if (window.innerWidth <= 985 && touchEndX - touchStartX > 50) {
+        sidebar.classList.add('open');
+      }
+    });
+
+    sidebar.addEventListener('touchstart', e => {
+      touchStartX = e.changedTouches[0].screenX;
+    });
+
+    sidebar.addEventListener('touchend', e => {
+      touchEndX = e.changedTouches[0].screenX;
+      if (touchStartX - touchEndX > 50) {
+        sidebar.classList.remove('open');
+      }
+    });
+
+    overlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+    });
+  </script>
 </body>
 </html>
