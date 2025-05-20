@@ -92,7 +92,7 @@ h1, h2, h3, h4 {
   }
   
   /* 幅400px以上で2列に */
-  @media (min-width: 950px) {
+  @media (min-width: 999px) {
     #grid {
       grid-template-columns: repeat(2, 1fr);
     }
