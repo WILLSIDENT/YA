@@ -106,7 +106,7 @@ async function loadDetail() {
           <li>
             <a href="detail.html?id=${i.from}">
               <img src="${f.thumb||''}" alt="${f.name||i}" width="100" height="100">
-              <span>${f.name||i.from}</span>
+              <span>${f.name1||i.from}</span>
             </a>
         <div class="impr-text">
          <!-- likeClass を here に追加 -->
