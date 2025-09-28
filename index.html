@@ -46,8 +46,8 @@
     </header>
     <div class="tabs">
   <button class="tab-btn active" data-tab="illust">イラスト</button>
-  <button class="tab-btn" data-tab="other1">（まだ）</button>
-  <button class="tab-btn" data-tab="other2">（まだ）</button>
+  <button class="tab-btn" data-tab="other1">創作(まだ)</button>
+  <button class="tab-btn" data-tab="board">匿名掲示板</button>
 </div>
 <main>
   <div id="tab-illust" class="tab-content active">
@@ -60,9 +60,21 @@
   <div id="tab-other1" class="tab-content">
     <p style="color:var(--muted)">コンテンツ未定です。</p>
   </div>
-  <div id="tab-other2" class="tab-content">
-    <p style="color:var(--muted)">コンテンツ未定です。</p>
+  <div id="tab-board" class="tab-content">
+    <section class="board">
+      <form id="b-form" class="board-form">
+        <input id="b-name" placeholder="名前">
+        <hr>
+        <textarea id="b-msg" placeholder="なんか書いて"></textarea>
+        <div class="submit-wrapper">
+          <button type="submit">ATTACK</button>
+        </div>
+      </form>
+      <ul id="b-list" class="board-list"></ul>
+    </section>
   </div>
+</main>
+
 </main>
 
     <footer>©willsident.com</footer>
@@ -212,5 +224,125 @@ tabButtons.forEach(btn => {
   });
 });
   </script>
+  <script>
+  // ======== タブ切替（既存に追記） ========
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', async () => {
+      tabButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      tabContents.forEach(c => c.classList.remove('active'));
+      const activeId = 'tab-' + btn.dataset.tab;
+      document.getElementById(activeId).classList.add('active');
+
+      // ★ 掲示板タブが初めて開かれたら初期化
+      if (btn.dataset.tab === 'board') {
+        await initBoardOnce();
+      }
+    });
+  });
+
+  // ======== 掲示板（TEST.html の機能を移植） ========
+  let boardInited = false;
+  async function initBoardOnce(){
+    if (boardInited) return;
+    boardInited = true;
+
+    // Firebase SDK を動的ロード（TEST.html と同等のバージョン）:contentReference[oaicite:6]{index=6}
+    const [{ initializeApp }, { getFirestore, collection, addDoc, query, orderBy, onSnapshot, deleteDoc, doc, getDoc, setDoc }, { getAuth, signInAnonymously, onAuthStateChanged }] =
+      await Promise.all([
+        import("https://www.gstatic.com/firebasejs/9.6.11/firebase-app.js"),
+        import("https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore.js"),
+        import("https://www.gstatic.com/firebasejs/9.6.11/firebase-auth.js")
+      ]);
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDu7kx3msV9CvOzxD9ilKmWfzkT3YHFcMg",
+      authDomain: "willsident-pj.firebaseapp.com",
+      projectId: "willsident-pj",
+      storageBucket: "willsident-pj.firebasestorage.app",
+      messagingSenderId: "791017364363",
+      appId: "1:791017364363:web:b2f1408377544c4de6ed8e"
+    }; // :contentReference[oaicite:7]{index=7}
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
+    const auth = getAuth(app);
+
+    const form = document.getElementById('b-form');
+    const nameI = document.getElementById('b-name');
+    const msgI  = document.getElementById('b-msg');
+    const list  = document.getElementById('b-list');
+
+    let uid = null;
+
+    // 匿名サインイン & 以降のロジック（TEST.html を踏襲）:contentReference[oaicite:8]{index=8}
+    signInAnonymously(auth);
+    onAuthStateChanged(auth, user => {
+      if (!user) return;
+      uid = user.uid;
+
+      form.onsubmit = async (e) => {
+        e.preventDefault();
+        if (!nameI.value || !msgI.value) return;
+        await addDoc(collection(db, "comments"), {
+          name: nameI.value,
+          message: msgI.value,
+          timestamp: new Date(),
+          uid: uid
+        });
+        nameI.value = "";
+        msgI.value = "";
+      };
+
+      const q = query(collection(db, "comments"), orderBy("timestamp", "desc"));
+      onSnapshot(q, snap => {
+        list.innerHTML = "";
+        snap.forEach(d => {
+          const c = d.data(), id = d.id;
+          const li = document.createElement("li");
+          const date = c.timestamp.toDate().toLocaleString("ja-JP");
+          const likesCol = collection(db, "comments", id, "likes");
+
+          li.innerHTML = `
+            <div><span class="name">${c.name}</span><span class="date">${date}</span></div>
+            <div class="message">${c.message}</div>
+            ${uid === c.uid ? `<button class="delete-btn" data-id="${id}">削除</button>` : ""}
+            <span class="likes" data-id="${id}">♡ ...</span>
+          `;
+          list.appendChild(li);
+
+          onSnapshot(likesCol, async (likeSnap) => {
+            const likeCount = likeSnap.size;
+            const likeDoc = await getDoc(doc(likesCol, uid));
+            const liked = likeDoc.exists();
+            const likesSpan = li.querySelector(".likes");
+            likesSpan.innerHTML = `
+              <button class="like-btn ${liked ? 'liked' : ''}" data-id="${id}" data-liked="${liked}">
+                ▲ ${likeCount}
+              </button>
+            `;
+            likesSpan.querySelector(".like-btn").onclick = async () => {
+              const likeRef = doc(db, "comments", id, "likes", uid);
+              if (liked) await deleteDoc(likeRef);
+              else await setDoc(likeRef, { liked: true });
+            };
+          });
+        });
+
+        // 削除
+        list.querySelectorAll(".delete-btn").forEach(b => {
+          b.onclick = () => {
+            const id = b.dataset.id;
+            deleteDoc(doc(db, "comments", id));
+          };
+        });
+      });
+    });
+  }
+
+  // ページ初期表示を「イラスト」タブにしている場合は、掲示板は未ロードのまま。
+  // ページを軽く保てます:contentReference[oaicite:9]{index=9}。
+</script>
+
 </body>
 </html>

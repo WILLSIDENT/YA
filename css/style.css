@@ -96,7 +96,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:#e6eef6}
 
 /* ===== Filter controls ===== */
 .controls{display:flex;flex-wrap:wrap;gap:12px;margin:18px 0;align-items:center;padding:10px;border-radius:12px;background:rgba(255,255,255,0.02);border: 1px solid rgba(255,255,255,0.05);}
-.tag-btn{padding:10px 20px;border-radius:999px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:var(--muted);cursor:pointer;font-size:13px;line-height:1;display:inline-flex;align-items:center;gap: 10px;margin:0 4px;}
+.tag-btn{padding:10px 20px;border-radius:999px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:var(--muted);cursor:pointer;font-size:13px;line-height:1;display:inline-flex;align-items:center;gap: 10px;margin:4px;}
 .tag-btn.all{color:#e6eef6;border-color:rgba(255,255,255,0.12)}
 .tag-btn.active{border-color:rgba(29,155,240,0.35)}
 .tag-btn[data-tag="よその子"],
@@ -107,6 +107,110 @@ background: transparent;
 color: var(--muted);
 border: 1px solid rgba(255,255,255,0.08);
 }
+
+/* ===== Board (掲示板) ===== */
+.board { 
+  background: transparent;
+}
+
+.board-form {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.board-form input,
+.board-form textarea {
+  width: 100%;
+  padding: 10px 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  color: #e6eef6;
+  font-size: 15px;
+  outline: none;
+}
+
+.board-form textarea { resize: vertical; min-height: 80px; }
+
+.board-form hr {
+  border: none;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  margin: 8px 0;
+}
+
+.board-form .submit-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.board-form button {
+  background: #ffd000;
+  color: #000;
+  border: none;
+  padding: 8px 14px;
+  font-weight: 700;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.board-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.board-list li {
+  position: relative;
+  padding: 12px;
+  background: var(--panel);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  margin-bottom: 10px;
+}
+
+.board-list .name { font-weight: 700; }
+.board-list .date { font-size: 12px; color: var(--muted); margin-left: 8px; }
+.board-list .message { white-space: pre-wrap; line-height: 1.6; margin-top: 6px; color: #e6eef6; }
+
+.board-list .like-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 14px;
+  color: #8899a6;
+  background: none;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 999px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: background .15s;
+}
+.board-list .like-btn:hover { background: rgba(255,255,255,0.05); }
+.board-list .like-btn.liked { font-weight: 700; color: #ffd000; border-color: rgba(255,208,0,0.45); }
+
+.board-list .delete-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 12px;
+  color: rgb(255, 0, 106);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+/* スマホ時のフォーム余白・文字サイズ微調整（既存の @media に寄せる） */
+@media(max-width:640px){
+  .board-form { padding: 10px; }
+  .board-list li { padding: 10px; }
+}
+
+
 
 .tag-btn.active[data-tag="よその子"] {
     background: rgba(255,99,132,0.2);
@@ -202,6 +306,15 @@ gap: 10px;
     .modal-card{grid-template-columns:1fr}
     .grid {
         grid-template-columns: 1fr 1fr;
+    }
+    .card-header-line {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .card-tags {
+        justify-content: flex-start;
     }
 }
 footer{margin-top:8px;padding-top:18px;border-top:1px dashed rgba(255, 255, 255, 0.1);color:var(--muted);font-size:13px;text-align: center;}
