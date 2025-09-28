@@ -177,13 +177,31 @@ gap: 10px;
 
 @media(max-width:640px){
     .banner{height:160px}
-    .avatar{left:12px;bottom:-54px;width:100px;height:100px}
-    .socials{right:12px;bottom:-48px}
-    .sns-btn{min-width:84px;height:30px;padding:0 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.5);color:#e6eef6;display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;text-decoration: none;}
-    .profile-meta{margin-top:60px}
+    .avatar{left:12px;bottom:-65px;width:140px;height:140px}
+    .socials {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        margin: -6px 0;
+        gap: 5px;
+        flex: 1;
+        max-width: 260px;
+    }
+    .sns-btn {
+        height: 24px;
+        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,0.5);
+        color: #e6eef6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+    .profile-meta{margin-top:75px}
     .modal-card{grid-template-columns:1fr}
     .grid {
-        grid-template-columns: 1fr 1fr; /* 強制的に2列 */
+        grid-template-columns: 1fr 1fr;
     }
 }
 footer{margin-top:8px;padding-top:18px;border-top:1px dashed rgba(255, 255, 255, 0.1);color:var(--muted);font-size:13px;text-align: center;}
